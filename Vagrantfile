@@ -9,7 +9,8 @@ MACHINES = {
         :vm_name => "nginx",
         :net => [
            ["192.168.56.170","","",""],
-        ]
+        ],
+        :ansible => "nginx.yml"
   }
 }
 
@@ -32,7 +33,7 @@ Vagrant.configure("2") do |config|
       #end
       #Переписано, чтобы создавалась не internal, а host-only сеть
       
-	  box.vm.network "private_network", ip: boxconfig[:net][0][0]
+	    box.vm.network "private_network", ip: boxconfig[:net][0][0]
 
       if boxconfig.key?(:public)
         box.vm.network "public_network", boxconfig[:public]
@@ -45,6 +46,9 @@ Vagrant.configure("2") do |config|
         sudo sed -i 's/\#PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
         systemctl restart sshd
       SHELL
+      box.vm.provision "ansible" do |ansible|
+        ansible.playbook = boxconfig[:ansible]
+      end
     end
   end
 end
